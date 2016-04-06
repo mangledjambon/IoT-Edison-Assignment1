@@ -49,18 +49,21 @@ function setup() {
             userId = "user_0";
         }
         
+        // user connected
         io.emit('user connect', userId);
-        usersArray.push(userId);
-        console.log('No. of users connected: ' + usersArray.length);
-        console.log(usersArray);
-        io.emit('connected users', usersArray);
+        usersArray.push(userId);                                    // add user id to array
+        console.log('No. of users connected: ' + usersArray.length);// print number of users currently connected
+        console.log(usersArray);                                    // print users array
+        io.emit('connected users', usersArray);                     
         
+        // user disconnected
         socket.on('user disconnect', function (msg) {
             console.log(msg + " disconnected.");
             usersArray.splice(usersArray.lastIndexOf(msg), 1);
             io.emit('user disconnect', msg);
         });
         
+        //user sent a chat message
         socket.on('chat message', function(msg) {
             io.emit('chat message', msg);
             console.log('message: ' + msg.value);
@@ -68,7 +71,7 @@ function setup() {
         
     });
 
-    // begin listening on port number specified above
+    // start http server, begin listening on port number specified above
     http.listen(portNumber, function() {
         console.log('Server active at http://' + ipAddress + ':' + portNumber);
     });
