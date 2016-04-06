@@ -21,7 +21,6 @@ socket.on('chat message', function(msg) {
 });
 
 socket.on('connected users', function(msg) {
-    
     $('#user-container').html("");
     for(var i = 0; i < msg.length; i++) {
         //console.log(msg[i]+" )msg[i] == userId( "+userId);
