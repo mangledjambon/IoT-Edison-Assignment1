@@ -1,8 +1,8 @@
 var mraa = require('mraa');                             //require mraa
 console.log('MRAA Version: ' + mraa.getVersion());      //write the mraa version to the console
 
-var ipAddress = '192.168.1.103';
-var portNumber = 8080;
+var ipAddress = '192.168.1.103';                        // ip address of edison
+var portNumber = 8080;                                  // port number to listen on
 
 var express = require('express');
 var app = express();
@@ -10,22 +10,30 @@ var path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var usersArray = [];
+var usersArray = [];                                    // array to hold user ids
 var userId;
-var soundSensor = new mraa.Aio(2);
-var potentiometer = new mraa.Aio(0);                    //setup access analog input A1
-var soundSensorValue;
-var potentiometerValue;
-var led = new mraa.Gpio(3);
-led.dir(mraa.DIR_OUT);
+var potentiometer = new mraa.Aio(0);                    // setup access to rotary angle sensor using analog input A0
+var soundSensor = new mraa.Aio(2);                      // setup access to sound sensor through analog input A2
+var led = new mraa.Gpio(3);                             // setup access to led through digital output D3
 
+var soundSensorValue;                                   // variable to hold value read from sound sensor
+var potentiometerValue;                                 // variable to hold value read from rotary angle sensor
+led.dir(mraa.DIR_OUT);                                  // set direction for led to be out
+
+/*
+    Function:       setup
+    Inputs:         none
+    Outputs:        none
+    
+    Sets up socket.io server and event handlers.
+ */
 function setup() {
     
     app.get('/', function(req, res) {
-        res.sendFile(path.join(__dirname + '/', 'index.html'));
+        res.sendFile(path.join(__dirname + '/', 'index.html'));     // allow express.js to deliver index.html in a browser
     });
 
-    app.use(express.static(__dirname));
+    app.use(express.static(__dirname));                             // use files in current directory
     app.use('/', express.static(__dirname + '/'));
 
 
@@ -60,16 +68,27 @@ function setup() {
         
     });
 
+    // begin listening on port number specified above
     http.listen(portNumber, function() {
         console.log('Server active at http://' + ipAddress + ':' + portNumber);
     });
 }
 
+/*
+    Function:       updateSensors
+    Inputs:         none
+    Outputs:        none
+    
+    This function will run periodically and update the sensor value variables
+    with new values read from the sensors. It also checks to see if the current 
+    sound sensor value is greater than the current threshold value and if it 
+    is, it lights the LED 
+ */
 function updateSensors() {
     
-    led.write(0);
+    led.write(0);                                       // turn LED off
     
-    var soundSensorValue = soundSensor.read();
+    var soundSensorValue = soundSensor.read();          // read value from sensor
     var potentiometerValue = potentiometer.read();
     
     if (potentiometerValue <= soundSensorValue) {
@@ -77,10 +96,10 @@ function updateSensors() {
         led.write(1);
     }
     
-    io.emit('update sensors', soundSensorValue, potentiometerValue);
+    io.emit('update sensors', soundSensorValue, potentiometerValue);            // update values in index.html
     //console.log("Updated sensors: S = " + soundSensorValue + ", T = " + potentiometerValue);
     
 }
 
-setup();
-setInterval(updateSensors, 200);
+setup();                                                // run setup
+setInterval(updateSensors, 200);                        // run updateSensors five times a second
