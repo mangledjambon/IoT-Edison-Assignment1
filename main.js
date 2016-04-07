@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
     Networking for Internet of Things Assignment 1
     
@@ -16,6 +17,8 @@
         - http
  */
 
+=======
+>>>>>>> 99f4080c6c86e67951d6f8af68601a470c4fddce
 var mraa = require('mraa');                             //require mraa
 console.log('MRAA Version: ' + mraa.getVersion());      //write the mraa version to the console
 
